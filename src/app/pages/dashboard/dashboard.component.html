@@ -1,0 +1,35 @@
+<section class="page card">
+  <div class="title-row">
+    <div>
+      <p class="eyebrow">Painel</p>
+      <h1>Você está autenticado</h1>
+    </div>
+  </div>
+
+  <div class="info-grid">
+    <div>
+      <dt>Usuário</dt>
+      <dd>
+        @if (userEmail()) {
+        {{ userEmail() }}
+        } @else {
+        <span>Informação não disponível</span>
+        }
+      </dd>
+    </div>
+    <div>
+      <dt>Expira em</dt>
+      <dd>{{ formatExpiration() }}</dd>
+    </div>
+  </div>
+
+  <div class="token-card">
+    <strong>Token JWT</strong>
+    <pre>{{ token() }}</pre>
+  </div>
+
+  <div class="actions">
+    <a routerLink="/" class="button secondary">Voltar à home</a>
+    <button type="button" class="button primary" (click)="logout()">Sair</button>
+  </div>
+</section>
