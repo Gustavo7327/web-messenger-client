@@ -1,0 +1,86 @@
+<section class="page card">
+  <div class="title-row">
+    <div>
+      <p class="eyebrow">Verificação</p>
+      <h1>Código de confirmação</h1>
+    </div>
+  </div>
+
+  @if (pendingEmailMode()) {
+  <div class="row-grid">
+    <form [formGroup]="codeForm" (ngSubmit)="confirmCode()" class="form-block">
+      <h2>Confirmar código</h2>
+      <p class="hint">Um código foi enviado para <strong>{{ pendingEmail() }}</strong>. Verifique sua caixa de entrada.</p>
+      <label>
+        <span>Código</span>
+        <input type="text" formControlName="code" autocomplete="one-time-code" />
+      </label>
+      @if (codeForm.get('code')?.invalid && (codeForm.get('code')?.touched || codeForm.get('code')?.dirty)) {
+      @if (codeForm.get('code')?.errors?.['required']) {
+      <div class="field-error">O código é obrigatório.</div>
+      } @else {
+      <div class="field-error">O código deve ter exatamente 6 dígitos.</div>
+      }
+      }
+      <button class="button secondary" type="submit" [disabled]="codeForm.invalid || isLoading()">
+        Confirmar código
+      </button>
+      <button type="button" class="button" (click)="resendCode()" [disabled]="isLoading()" style="margin-top:0.75rem">Reenviar código</button>
+    </form>
+  </div>
+  } @else {
+  <div class="row-grid">
+    <form [formGroup]="emailForm" (ngSubmit)="requestCode()" class="form-block">
+      <h2>Enviar código</h2>
+      <label>
+        <span>Email</span>
+        <input type="email" formControlName="email" autocomplete="email" />
+      </label>
+      @if (emailForm.get('email')?.invalid && (emailForm.get('email')?.touched || emailForm.get('email')?.dirty)) {
+      @if (emailForm.get('email')?.errors?.['required']) {
+      <div class="field-error">O email é obrigatório.</div>
+      } @else {
+      <div class="field-error">Email inválido.</div>
+      }
+      }
+      <button class="button primary" type="submit" [disabled]="emailForm.invalid || isLoading()">
+        Enviar código
+      </button>
+    </form>
+
+    <form [formGroup]="codeForm" (ngSubmit)="confirmCode()" class="form-block">
+      <h2>Confirmar código</h2>
+      <label>
+        <span>Email</span>
+        <input type="email" formControlName="email" autocomplete="email" />
+      </label>
+      <label>
+        <span>Código</span>
+        <input type="text" formControlName="code" autocomplete="one-time-code" />
+      </label>
+      @if (codeForm.get('code')?.invalid && (codeForm.get('code')?.touched || codeForm.get('code')?.dirty)) {
+      @if (codeForm.get('code')?.errors?.['required']) {
+      <div class="field-error">O código é obrigatório.</div>
+      } @else {
+      <div class="field-error">O código deve ter exatamente 6 dígitos.</div>
+      }
+      }
+      <button class="button secondary" type="submit" [disabled]="codeForm.invalid || isLoading()">
+        Confirmar código
+      </button>
+    </form>
+  </div>
+  }
+
+  @if (message()) {
+  <div class="message success">{{ message() }}</div>
+  }
+
+  @if (errorMessage()) {
+  <div class="message error">{{ errorMessage() }}</div>
+  }
+
+  <p class="hint">
+    Depois de verificar o código, use o login para acessar o painel.
+  </p>
+</section>
