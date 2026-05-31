@@ -1,35 +1,129 @@
-<section class="page card">
-  <div class="title-row">
-    <div>
-      <p class="eyebrow">Painel</p>
-      <h1>Você está autenticado</h1>
+<section class="page feed">
+  <div class="feed-header">
+    <div class="header-content">
+      <h1>Feed de Mensagens</h1>
+      <p class="user-info">{{ userEmail() }}</p>
+      <span [class]="'status ' + (isConnected() ? 'connected' : 'disconnected')">
+        {{ isConnected() ? '● Conectado' : '● Desconectado' }}
+      </span>
     </div>
-  </div>
-
-  <div class="info-grid">
-    <div>
-      <dt>Usuário</dt>
-      <dd>
-        @if (userEmail()) {
-        {{ userEmail() }}
-        } @else {
-        <span>Informação não disponível</span>
-        }
-      </dd>
-    </div>
-    <div>
-      <dt>Expira em</dt>
-      <dd>{{ formatExpiration() }}</dd>
-    </div>
-  </div>
-
-  <div class="token-card">
-    <strong>Token JWT</strong>
-    <pre>{{ token() }}</pre>
-  </div>
-
-  <div class="actions">
-    <a routerLink="/" class="button secondary">Voltar à home</a>
     <button type="button" class="button primary" (click)="logout()">Sair</button>
+  </div>
+
+  <div class="feed-container">
+    <div class="tabs">
+      <button
+        type="button"
+        [class]="'tab ' + (selectedTab() === 'groups' ? 'active' : '')"
+        (click)="selectedTab.set('groups')"
+      >
+        Grupos
+      </button>
+      <button
+        type="button"
+        [class]="'tab ' + (selectedTab() === 'private' ? 'active' : '')"
+        (click)="selectedTab.set('private')"
+      >
+        Mensagens Privadas
+      </button>
+    </div>
+
+    <div class="feed-content">
+      @if (selectedTab() === 'groups') {
+      <div class="groups-section">
+        @if (groupIds().length > 0) {
+        <div class="groups-list">
+          @for (grpId of groupIds(); track grpId) {
+          <div class="group-item" [class.selected]="groupId() === grpId">
+            <button type="button" (click)="selectGroup(grpId)" class="group-button">
+              <span class="group-name">Grupo #{{ grpId }}</span>
+              <span class="message-count">{{ messagesByGroup()[grpId].length }}</span>
+            </button>
+          </div>
+          }
+        </div>
+
+        <div class="messages-panel">
+          @if (groupId()) {
+          <div class="messages-list">
+            <h3>Grupo #{{ groupId() }}</h3>
+              @for (msg of (groupId() !== null ? messagesByGroup()[groupId()!] : []); track msg.id) {
+            <div class="message">
+              <div class="message-header">
+                <strong class="sender-name">{{ msg.senderName || 'Usuário ' + msg.senderId }}</strong>
+                <span class="timestamp">{{ msg.timestamp }}</span>
+              </div>
+              <p class="message-content">{{ msg.content }}</p>
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="placeholder">Selecione um grupo para ver as mensagens</div>
+          }
+        </div>
+        } @else {
+        <div class="placeholder">Nenhuma mensagem de grupo ainda</div>
+        }
+      </div>
+      } @else if (selectedTab() === 'private') {
+      <div class="private-section">
+        @if (privateMessages().length > 0) {
+        <div class="private-list">
+          <h3>Conversas Privadas</h3>
+          @for (msg of privateMessages(); track msg.id) {
+          <div class="private-item" [class.selected]="recipientId() === msg.senderId">
+            <button type="button" (click)="selectPrivateChat(msg.senderId)" class="private-button">
+              <span class="user-name">{{ msg.senderName || 'Usuário ' + msg.senderId }}</span>
+            </button>
+          </div>
+          }
+        </div>
+
+        <div class="messages-panel">
+          @if (recipientId()) {
+          <div class="messages-list">
+            <h3>Conversa com Usuário #{{ recipientId() }}</h3>
+            @for (msg of privateMessages().filter(m => m.senderId === recipientId()); track msg.id) {
+            <div class="message">
+              <div class="message-header">
+                <strong class="sender-name">{{ msg.senderName || 'Usuário ' + msg.senderId }}</strong>
+                <span class="timestamp">{{ msg.timestamp }}</span>
+              </div>
+              <p class="message-content">{{ msg.content }}</p>
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="placeholder">Selecione uma conversa para ver as mensagens</div>
+          }
+        </div>
+        } @else {
+        <div class="placeholder">Nenhuma mensagem privada ainda</div>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="message-input-section">
+      <div class="input-group">
+        <textarea
+          [(ngModel)]="messageContent"
+          placeholder="Digite sua mensagem..."
+          (keydown.enter)="sendMessage()"
+          class="message-textarea"
+        ></textarea>
+        <button
+          type="button"
+          (click)="sendMessage()"
+          [disabled]="!messageContent() || !isConnected()"
+          class="button primary"
+        >
+          Enviar
+        </button>
+      </div>
+      @if (!isConnected()) {
+      <p class="warning">Conectando ao servidor...</p>
+      }
+    </div>
   </div>
 </section>
