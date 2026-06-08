@@ -1,0 +1,142 @@
+<section class="groups-page">
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Gerenciar Grupos</h1>
+      <p>Crie e gerencie grupos para conversas em equipe</p>
+    </div>
+    <button 
+      class="btn-add-group" 
+      (click)="showForm.set(!showForm())"
+      type="button"
+      [class.active]="showForm()"
+    >
+      {{ showForm() ? '✕ Cancelar' : '+ Novo grupo' }}
+    </button>
+  </header>
+
+  <div class="groups-container">
+    @if (showForm()) {
+      <div class="new-group-form">
+        <h2>Criar novo grupo</h2>
+        <div class="form-group">
+          <label for="name">Nome do grupo</label>
+          <input 
+            id="name"
+            type="text" 
+            [(ngModel)]="newGroupName"
+            placeholder="Digite o nome do grupo"
+            class="form-input"
+          />
+        </div>
+        <div class="form-group">
+          <label for="description">Descrição</label>
+          <textarea 
+            id="description"
+            [(ngModel)]="newGroupDescription"
+            placeholder="Digite uma descrição (opcional)"
+            class="form-input"
+            rows="3"
+          ></textarea>
+        </div>
+        <div class="form-actions">
+          <button 
+            class="btn-primary" 
+            (click)="createGroup()"
+            type="button"
+            [disabled]="!newGroupName()"
+          >
+            Criar grupo
+          </button>
+          <button 
+            class="btn-secondary" 
+            (click)="showForm.set(false)"
+            type="button"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    }
+
+    <div class="search-section">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery"
+          placeholder="Buscar por nome ou descrição..."
+          class="search-input"
+        />
+      </div>
+    </div>
+
+    <div class="groups-list">
+      @if (filteredGroups().length > 0) {
+        <h2 class="section-title">Grupos ({{ filteredGroups().length }})</h2>
+        <div class="groups-grid">
+          @for (group of filteredGroups(); track group.id) {
+            <div class="group-card">
+              <div class="group-avatar">
+                {{ group.name.charAt(0).toUpperCase() }}
+              </div>
+              <div class="group-info">
+                <strong class="group-name">{{ group.name }}</strong>
+                <small class="group-description">{{ group.description || 'Sem descrição' }}</small>
+              </div>
+              <div class="group-actions">
+                <button 
+                  class="btn-action btn-chat" 
+                  (click)="openGroupChat(group.id)"
+                  type="button"
+                  title="Abrir chat"
+                >
+                  💬
+                </button>
+                <button 
+                  class="btn-action btn-edit" 
+                  (click)="editGroup(group.id)"
+                  type="button"
+                  title="Editar grupo"
+                >
+                  ✏️
+                </button>
+                <button 
+                  class="btn-action btn-delete" 
+                  (click)="deleteGroup(group.id)"
+                  type="button"
+                  title="Deletar grupo"
+                >
+                  🗑️
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <div class="empty-icon">👨‍👩‍👧‍👦</div>
+          <h2>Nenhum grupo encontrado</h2>
+          @if (searchQuery()) {
+            <p>Nenhum grupo correspondente à busca</p>
+            <button 
+              class="btn-link" 
+              (click)="searchQuery.set('')"
+              type="button"
+            >
+              Limpar busca
+            </button>
+          } @else {
+            <p>Comece criando seu primeiro grupo</p>
+            <button 
+              class="btn-primary" 
+              (click)="showForm.set(true)"
+              type="button"
+            >
+              + Criar grupo
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</section>
