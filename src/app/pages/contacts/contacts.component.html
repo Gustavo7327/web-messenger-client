@@ -1,0 +1,143 @@
+<section class="contacts-page">
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Gerenciar Contatos</h1>
+      <p>Adicione e gerencie seus contatos para facilitar conversas</p>
+    </div>
+    <button 
+      class="btn-add-contact" 
+      (click)="showForm.set(!showForm())"
+      type="button"
+      [class.active]="showForm()"
+    >
+      {{ showForm() ? '✕ Cancelar' : '+ Novo contato' }}
+    </button>
+  </header>
+
+  <div class="contacts-container">
+    @if (showForm()) {
+      <div class="new-contact-form">
+        <h2>Adicionar novo contato</h2>
+        <div class="form-group">
+          <label for="username">Nome de usuário</label>
+          <input 
+            id="username"
+            type="text" 
+            [(ngModel)]="newContactUsername"
+            placeholder="Digite o nome de usuário"
+            class="form-input"
+          />
+        </div>
+        <div class="form-group">
+          <label for="nickname">Apelido</label>
+          <input 
+            id="nickname"
+            type="text" 
+            [(ngModel)]="newContactNickname"
+            placeholder="Digite um apelido"
+            class="form-input"
+          />
+        </div>
+        <div class="form-actions">
+          <button 
+            class="btn-primary" 
+            (click)="createContact()"
+            type="button"
+            [disabled]="!newContactUsername() || !newContactNickname()"
+          >
+            Salvar contato
+          </button>
+          <button 
+            class="btn-secondary" 
+            (click)="showForm.set(false)"
+            type="button"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    }
+
+    <div class="search-section">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery"
+          placeholder="Buscar por nome ou usuário..."
+          class="search-input"
+        />
+      </div>
+    </div>
+
+    <div class="contacts-list">
+      @if (filteredContacts().length > 0) {
+        <h2 class="section-title">Contatos ({{ filteredContacts().length }})</h2>
+        <div class="contacts-grid">
+          @for (contact of filteredContacts(); track contact.id) {
+            <div class="contact-card">
+              <div class="contact-avatar">
+                {{ contact.nickname.charAt(0).toUpperCase() }}
+              </div>
+              <div class="contact-info">
+                <strong class="contact-name">{{ contact.nickname }}</strong>
+                <small class="contact-username">@{{ contact.username }}</small>
+                <small class="contact-date">Adicionado em {{ contact.createdAt | date:'shortDate' }}</small>
+              </div>
+              <div class="contact-actions">
+                <button 
+                  class="btn-action btn-chat" 
+                  (click)="openChatWith(contact.id)"
+                  type="button"
+                  title="Abrir chat"
+                >
+                  💬
+                </button>
+                <button 
+                  class="btn-action btn-edit" 
+                  (click)="editContact(contact.id)"
+                  type="button"
+                  title="Editar contato"
+                >
+                  ✏️
+                </button>
+                <button 
+                  class="btn-action btn-delete" 
+                  (click)="deleteContact(contact.id)"
+                  type="button"
+                  title="Deletar contato"
+                >
+                  🗑️
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <div class="empty-icon">👥</div>
+          <h2>Nenhum contato encontrado</h2>
+          @if (searchQuery()) {
+            <p>Nenhum contato correspondente à busca</p>
+            <button 
+              class="btn-link" 
+              (click)="searchQuery.set('')"
+              type="button"
+            >
+              Limpar busca
+            </button>
+          } @else {
+            <p>Comece adicionando seus primeiros contatos</p>
+            <button 
+              class="btn-primary" 
+              (click)="showForm.set(true)"
+              type="button"
+            >
+              + Adicionar contato
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</section>
