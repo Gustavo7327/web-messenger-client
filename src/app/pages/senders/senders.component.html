@@ -1,0 +1,66 @@
+<section class="senders-page">
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Remetentes de Grupos</h1>
+      <p>Pessoas que enviaram mensagens em grupos</p>
+    </div>
+  </header>
+
+  <div class="senders-container">
+    <div class="search-section">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery"
+          placeholder="Buscar por nome..."
+          class="search-input"
+        />
+      </div>
+    </div>
+
+    <div class="senders-list">
+      @if (filteredSenders().length > 0) {
+        <h2 class="section-title">Remetentes ({{ filteredSenders().length }})</h2>
+        <div class="senders-grid">
+          @for (senderId of filteredSenders(); track senderId) {
+            <div class="sender-card">
+              <div class="sender-avatar">
+                {{ (getSenderInfo(senderId).name.charAt(0)).toUpperCase() }}
+              </div>
+              <div class="sender-info">
+                <strong class="sender-name">{{ getSenderInfo(senderId).name }}</strong>
+                <small class="sender-id">ID {{ senderId }}</small>
+              </div>
+              <button 
+                class="btn-action btn-chat" 
+                (click)="openChatWith(senderId)"
+                type="button"
+                title="Abrir chat"
+              >
+                💬
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <div class="empty-icon">📤</div>
+          <h2>Nenhum remetente encontrado</h2>
+          @if (searchQuery()) {
+            <p>Nenhum remetente correspondente à busca</p>
+            <button 
+              class="btn-link" 
+              (click)="searchQuery.set('')"
+              type="button"
+            >
+              Limpar busca
+            </button>
+          } @else {
+            <p>Nenhuma atividade em grupos ainda. Aguarde mensagens chegarem.</p>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</section>
