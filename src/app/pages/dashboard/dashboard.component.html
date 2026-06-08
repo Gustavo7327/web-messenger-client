@@ -1,129 +1,196 @@
-<section class="page feed">
-  <div class="feed-header">
-    <div class="header-content">
-      <h1>Feed de Mensagens</h1>
-      <p class="user-info">{{ userEmail() }}</p>
-      <span [class]="'status ' + (isConnected() ? 'connected' : 'disconnected')">
-        {{ isConnected() ? '● Conectado' : '● Desconectado' }}
-      </span>
-    </div>
-    <button type="button" class="button primary" (click)="logout()">Sair</button>
-  </div>
-
-  <div class="feed-container">
-    <div class="tabs">
-      <button
-        type="button"
-        [class]="'tab ' + (selectedTab() === 'groups' ? 'active' : '')"
-        (click)="selectedTab.set('groups')"
-      >
-        Grupos
-      </button>
-      <button
-        type="button"
-        [class]="'tab ' + (selectedTab() === 'private' ? 'active' : '')"
-        (click)="selectedTab.set('private')"
-      >
-        Mensagens Privadas
-      </button>
-    </div>
-
-    <div class="feed-content">
-      @if (selectedTab() === 'groups') {
-      <div class="groups-section">
-        @if (groupIds().length > 0) {
-        <div class="groups-list">
-          @for (grpId of groupIds(); track grpId) {
-          <div class="group-item" [class.selected]="groupId() === grpId">
-            <button type="button" (click)="selectGroup(grpId)" class="group-button">
-              <span class="group-name">Grupo #{{ grpId }}</span>
-              <span class="message-count">{{ messagesByGroup()[grpId].length }}</span>
-            </button>
-          </div>
-          }
+<section class="dashboard-page">
+  <div class="dashboard-container">
+    <aside class="chat-sidebar">
+      <div class="chat-sidebar-header">
+        <h2>Mensagens</h2>
+        <div class="search-bar">
+          <input type="text" placeholder="Buscar chat..." class="search-input" />
         </div>
-
-        <div class="messages-panel">
-          @if (groupId()) {
-          <div class="messages-list">
-            <h3>Grupo #{{ groupId() }}</h3>
-              @for (msg of (groupId() !== null ? messagesByGroup()[groupId()!] : []); track msg.id) {
-            <div class="message">
-              <div class="message-header">
-                <strong class="sender-name">{{ msg.senderName || 'Usuário ' + msg.senderId }}</strong>
-                <span class="timestamp">{{ msg.timestamp }}</span>
-              </div>
-              <p class="message-content">{{ msg.content }}</p>
-            </div>
-            }
-          </div>
-          } @else {
-          <div class="placeholder">Selecione um grupo para ver as mensagens</div>
-          }
-        </div>
-        } @else {
-        <div class="placeholder">Nenhuma mensagem de grupo ainda</div>
-        }
       </div>
-      } @else if (selectedTab() === 'private') {
-      <div class="private-section">
-        @if (privateMessages().length > 0) {
-        <div class="private-list">
-          <h3>Conversas Privadas</h3>
-          @for (msg of privateMessages(); track msg.id) {
-          <div class="private-item" [class.selected]="recipientId() === msg.senderId">
-            <button type="button" (click)="selectPrivateChat(msg.senderId)" class="private-button">
-              <span class="user-name">{{ msg.senderName || 'Usuário ' + msg.senderId }}</span>
-            </button>
-          </div>
-          }
-        </div>
 
-        <div class="messages-panel">
-          @if (recipientId()) {
-          <div class="messages-list">
-            <h3>Conversa com Usuário #{{ recipientId() }}</h3>
-            @for (msg of privateMessages().filter(m => m.senderId === recipientId()); track msg.id) {
-            <div class="message">
-              <div class="message-header">
-                <strong class="sender-name">{{ msg.senderName || 'Usuário ' + msg.senderId }}</strong>
-                <span class="timestamp">{{ msg.timestamp }}</span>
-              </div>
-              <p class="message-content">{{ msg.content }}</p>
-            </div>
-            }
-          </div>
-          } @else {
-          <div class="placeholder">Selecione uma conversa para ver as mensagens</div>
-          }
-        </div>
-        } @else {
-        <div class="placeholder">Nenhuma mensagem privada ainda</div>
-        }
-      </div>
-      }
-    </div>
-
-    <div class="message-input-section">
-      <div class="input-group">
-        <textarea
-          [(ngModel)]="messageContent"
-          placeholder="Digite sua mensagem..."
-          (keydown.enter)="sendMessage()"
-          class="message-textarea"
-        ></textarea>
-        <button
-          type="button"
-          (click)="sendMessage()"
-          [disabled]="!messageContent() || !isConnected()"
-          class="button primary"
-        >
-          Enviar
+      <div class="chat-tabs">
+        <button class="tab-item active" type="button">
+          💬 Diretos
+        </button>
+        <button class="tab-item" type="button">
+          👥 Grupos
         </button>
       </div>
-      @if (!isConnected()) {
-      <p class="warning">Conectando ao servidor...</p>
+
+      <div class="chat-list">
+        @if (contacts().length > 0) {
+          @for (contact of contacts(); track contact.id) {
+            <button
+              type="button"
+              class="chat-item"
+              [class.active]="selectedChatUserId() === contact.id && !selectedGroupId()"
+              (click)="selectContact(contact.id)"
+            >
+              <div class="chat-item-avatar">{{ contact.nickname.charAt(0).toUpperCase() }}</div>
+              <div class="chat-item-content">
+                <strong>{{ contact.nickname }}</strong>
+                <small>{{ contact.username }}</small>
+              </div>
+            </button>
+          }
+        } @else {
+          <div class="empty-state">
+            <p>Nenhum contato para chatear</p>
+            <small>Acesse a aba de Contatos para adicionar novos</small>
+          </div>
+        }
+      </div>
+
+      <div class="chat-list">
+        @if (groups().length > 0) {
+          @for (group of groups(); track group.id) {
+            <button
+              type="button"
+              class="chat-item"
+              [class.active]="selectedGroupId() === group.id"
+              (click)="selectGroup(group.id)"
+            >
+              <div class="chat-item-avatar group">{{ group.name.charAt(0).toUpperCase() }}</div>
+              <div class="chat-item-content">
+                <strong>{{ group.name }}</strong>
+                <small>{{ group.description || 'Sem descrição' }}</small>
+              </div>
+            </button>
+          }
+        } @else {
+          <div class="empty-state">
+            <p>Nenhum grupo disponível</p>
+            <small>Acesse a aba de Grupos para criar um novo</small>
+          </div>
+        }
+      </div>
+    </aside>
+
+    <main class="chat-main">
+      @if (!selectedGroupId() && !selectedChatUserId()) {
+        <section class="chat-welcome">
+          <div class="welcome-icon">💌</div>
+          <h2>Bem-vindo às suas mensagens</h2>
+          <p>Selecione um contato ou grupo na esquerda para começar a conversar</p>
+        </section>
+      } @else if (selectedGroupId()) {
+        <section class="chat-container">
+          <div class="chat-header">
+            <div class="chat-header-info">
+              <span class="chat-badge">Grupo</span>
+              <h2>{{ getGroupName(selectedGroupId()!) }}</h2>
+            </div>
+            <span class="message-count">{{ activeGroupMessages().length }} mensagens</span>
+          </div>
+
+          @if (activeGroupMessages().length > 0) {
+            <div class="messages-container">
+              @for (msg of activeGroupMessages(); track msg.id) {
+                <div class="message-bubble" [class.own]="false">
+                  <div class="message-header">
+                    <strong>{{ msg.senderName || ('Usuário ' + msg.senderId) }}</strong>
+                    <span class="timestamp">{{ msg.timestamp || 'agora' }}</span>
+                  </div>
+                  <p class="message-content">{{ msg.content }}</p>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="messages-empty">Nenhuma mensagem neste grupo ainda</div>
+          }
+
+          <div class="message-input-area">
+            <textarea
+              [(ngModel)]="messageContent"
+              placeholder="Digite uma mensagem para o grupo..."
+              (keydown.enter.prevent)="sendMessage()"
+              [disabled]="!isConnected()"
+              class="message-input"
+            ></textarea>
+            <button
+              type="button"
+              class="send-button"
+              (click)="sendMessage()"
+              [disabled]="!messageContent() || !isConnected()"
+              title="Enviar mensagem"
+            >
+              ✈️
+            </button>
+          </div>
+        </section>
+      } @else {
+        <section class="chat-container">
+          <div class="chat-header">
+            <div class="chat-header-info">
+              <span class="chat-badge">Conversa Privada</span>
+              <h2>{{ selectedUserProfile()?.name || 'Usuário #' + selectedChatUserId() }}</h2>
+              <small>{{ selectedUserProfile()?.username || '' }}</small>
+            </div>
+            <span class="message-count">{{ activePrivateMessages().length }} mensagens</span>
+          </div>
+
+          @if (selectedUserProfile()) {
+            <div class="user-profile-card">
+              @if (selectedUserProfile()?.photoUrl) {
+                <img [src]="selectedUserProfile()?.photoUrl" alt="Foto" class="profile-photo" />
+              } @else {
+                <div class="profile-avatar">{{ (selectedUserProfile()?.name || 'U').charAt(0).toUpperCase() }}</div>
+              }
+              <div class="profile-info">
+                <p class="profile-bio">{{ selectedUserProfile()?.bio || 'Sem biografia disponível.' }}</p>
+                @if (selectedUserProfile()?.profileLinks?.length) {
+                  <div class="profile-links">
+                    <strong>Links:</strong>
+                    @for (link of selectedUserProfile()?.profileLinks ?? []; track link) {
+                      <a [href]="link" target="_blank" rel="noopener">{{ link }}</a>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="profile-loading">Carregando perfil do usuário...</div>
+          }
+
+          @if (activePrivateMessages().length > 0) {
+            <div class="messages-container">
+              @for (msg of activePrivateMessages(); track msg.id) {
+                <div class="message-bubble" [class.own]="msg.recipientId !== selectedChatUserId()">
+                  <p class="message-content">{{ msg.content }}</p>
+                  <span class="timestamp">{{ msg.timestamp || 'agora' }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="messages-empty">Nenhuma conversa com este usuário ainda</div>
+          }
+
+          <div class="message-input-area">
+            <textarea
+              [(ngModel)]="messageContent"
+              placeholder="Digite uma mensagem..."
+              (keydown.enter.prevent)="sendMessage()"
+              [disabled]="!isConnected()"
+              class="message-input"
+            ></textarea>
+            <button
+              type="button"
+              class="send-button"
+              (click)="sendMessage()"
+              [disabled]="!messageContent() || !isConnected()"
+              title="Enviar mensagem"
+            >
+              ✈️
+            </button>
+          </div>
+        </section>
       }
-    </div>
+
+      @if (!isConnected()) {
+        <div class="connection-warning">
+          <span>⚠️ Aguardando conexão com o servidor...</span>
+        </div>
+      }
+    </main>
   </div>
 </section>
