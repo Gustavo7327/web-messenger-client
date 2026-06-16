@@ -3,6 +3,7 @@ import { LandingComponent } from './pages/landing/landing.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { VerifyCodeComponent } from './pages/verify-code/verify-code.component';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ContactsComponent } from './pages/contacts/contacts.component';
 import { GroupsComponent } from './pages/groups/groups.component';
@@ -15,6 +16,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'verify', component: VerifyCodeComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
   {
     path: '',
     component: LayoutComponent,
