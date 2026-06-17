@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { WebSocketService } from '../../services/websocket.service';
 import { ContactsService } from '../../services/contacts.service';
 import { GroupService } from '../../services/group.service';
 
@@ -24,16 +23,12 @@ interface NavItem {
 })
 export class SidebarComponent {
   private readonly auth = inject(AuthService);
-  private readonly websocket = inject(WebSocketService);
   private readonly contactsService = inject(ContactsService);
   private readonly groupService = inject(GroupService);
   private readonly router = inject(Router);
 
-  protected readonly userEmail = this.auth.userEmail;
-  protected readonly isConnected = this.websocket.isConnected;
   protected readonly contacts = this.contactsService.contacts;
   protected readonly groups = this.groupService.groups;
-  protected readonly isSidebarOpen = signal(true);
 
   protected readonly navItems = computed<NavItem[]>(() => [
     {
@@ -64,10 +59,6 @@ export class SidebarComponent {
       route: '/senders'
     }
   ]);
-
-  protected toggleSidebar(): void {
-    this.isSidebarOpen.update(value => !value);
-  }
 
   protected logout(): void {
     this.auth.logout();
