@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = environment.apiUrl;
 
 export interface EmailRequest {
   email: string;

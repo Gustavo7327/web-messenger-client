@@ -3,8 +3,9 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = environment.apiUrl;
 
 export interface LoginRequest {
   email: string;

@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Client } from '@stomp/stompjs';
 import { AuthService } from './auth.service';
 import { Observable, Subject } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Message {
   id?: number;
@@ -35,7 +36,7 @@ export class WebSocketService {
       }
 
       this.client = new Client({
-        brokerURL: 'ws://localhost:8080/ws',
+        brokerURL: environment.websocketBrokerUrl,
         connectHeaders: {
           Authorization: `Bearer ${token}`
         },
